@@ -1,0 +1,623 @@
+/**
+ * responsive.css — Mobile-First Responsive Design System (Phase 2)
+ * ─────────────────────────────────────────────────────────────────
+ * Strategy: Base styles target mobile (< 640px).
+ * Progressive enhancement via min-width breakpoints:
+ *   sm:  640px  (large phone / small tablet)
+ *   md:  768px  (tablet)
+ *   lg:  1024px (desktop)
+ *   xl:  1280px (wide desktop)
+ *
+ * New Phase 2 components:
+ *   - Mobile nav (hamburger + full-screen overlay)
+ *   - Results tabs (All Jobs / Saved / Skill Gap)
+ *   - Mobile filter bottom drawer (slide-up sheet)
+ *   - Mobile sticky bottom action bar
+ *   - Skill gap analysis panel
+ *   - Bookmark button on job cards
+ * ─────────────────────────────────────────────────────────────────
+ */
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE NAV — Hamburger menu + overlay (landing + results pages)
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Hamburger toggle button — hidden on desktop */
+.nav__hamburger {
+  display:      flex;
+  flex-direction:column;
+  justify-content: space-between;
+  width:         28px;
+  height:        20px;
+  cursor:        pointer;
+  background:    none;
+  border:        none;
+  padding:       0;
+  flex-shrink:   0;
+}
+.nav__hamburger-line {
+  display:       block;
+  width:         100%;
+  height:        2px;
+  background:    var(--text-primary);
+  border-radius: 2px;
+  transition:    all var(--transition-normal);
+}
+/* Animate hamburger → X when menu is open */
+.nav__hamburger.open .nav__hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+.nav__hamburger.open .nav__hamburger-line:nth-child(2) { opacity: 0; }
+.nav__hamburger.open .nav__hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Mobile full-screen nav overlay */
+.mobile-nav-overlay {
+  position:    fixed;
+  inset:       0;
+  z-index:     90;
+  background:  rgba(3, 7, 18, 0.96);
+  backdrop-filter: blur(16px);
+  display:     flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap:         2rem;
+  opacity:     0;
+  pointer-events: none;
+  transition:  opacity var(--transition-normal);
+}
+.mobile-nav-overlay.open {
+  opacity:        1;
+  pointer-events: all;
+}
+.mobile-nav-overlay .nav__link {
+  font-size:   1.5rem;
+  font-weight: 700;
+  color:       var(--text-primary);
+  opacity:     0;
+  transform:   translateY(20px);
+  transition:  all var(--transition-normal);
+}
+.mobile-nav-overlay.open .nav__link {
+  opacity:   1;
+  transform: translateY(0);
+}
+/* Staggered entrance for nav links */
+.mobile-nav-overlay.open .nav__link:nth-child(1) { transition-delay: 100ms; }
+.mobile-nav-overlay.open .nav__link:nth-child(2) { transition-delay: 180ms; }
+.mobile-nav-overlay.open .nav__link:nth-child(3) { transition-delay: 260ms; }
+
+/* On desktop: hide hamburger, show normal nav links */
+@media (min-width: 768px) {
+  .nav__hamburger       { display: none; }
+  .mobile-nav-overlay   { display: none !important; }
+}
+
+/* On mobile: hide desktop nav links in the bar */
+@media (max-width: 767px) {
+  .nav__links { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   RESULTS TABS — All Jobs / Saved / Skill Gap
+   ══════════════════════════════════════════════════════════════════ */
+
+.results-tabs {
+  display:        flex;
+  gap:            0;
+  border-bottom:  1px solid var(--glass-border);
+  margin-bottom:  var(--space-lg);
+  overflow-x:     auto;
+  scrollbar-width:none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+  flex-shrink:    0;
+}
+.results-tabs::-webkit-scrollbar { display: none; }
+
+.tab-btn {
+  display:       flex;
+  align-items:   center;
+  gap:           var(--space-xs);
+  padding:       0.75rem 1.25rem;
+  font-size:     var(--font-size-sm);
+  font-weight:   600;
+  color:         var(--text-muted);
+  border-bottom: 2px solid transparent;
+  white-space:   nowrap;
+  transition:    all var(--transition-fast);
+  flex-shrink:   0;
+}
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active {
+  color:         var(--primary-light);
+  border-color:  var(--primary);
+}
+
+.tab-count {
+  display:       inline-flex;
+  align-items:   center;
+  justify-content: center;
+  min-width:     20px;
+  height:        20px;
+  padding:       0 5px;
+  background:    rgba(99,102,241,0.2);
+  border-radius: var(--radius-full);
+  font-size:     var(--font-size-xs);
+  color:         var(--primary-light);
+}
+.tab-btn.active .tab-count {
+  background: var(--primary);
+  color:      #fff;
+}
+
+/* Tab panels */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ══════════════════════════════════════════════════════════════════
+   BOOKMARK BUTTON on Job Cards
+   ══════════════════════════════════════════════════════════════════ */
+
+.bookmark-btn {
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  width:         32px;
+  height:        32px;
+  border-radius: var(--radius-full);
+  border:        1px solid var(--glass-border);
+  background:    transparent;
+  color:         var(--text-muted);
+  font-size:     1rem;
+  transition:    all var(--transition-fast);
+  flex-shrink:   0;
+  cursor:        pointer;
+}
+.bookmark-btn:hover {
+  border-color:  var(--warning);
+  color:         var(--warning);
+  background:    rgba(245,158,11,0.1);
+  transform:     scale(1.1);
+}
+.bookmark-btn.bookmarked {
+  border-color:  var(--warning);
+  color:         var(--warning);
+  background:    rgba(245,158,11,0.12);
+}
+/* Pulse animation on bookmark */
+.bookmark-btn.pulse {
+  animation: bookmarkPulse 0.35s ease;
+}
+@keyframes bookmarkPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   SAVED JOBS TAB — Empty + Grid
+   ══════════════════════════════════════════════════════════════════ */
+
+.saved-empty {
+  text-align:  center;
+  padding:     var(--space-3xl) var(--space-xl);
+}
+.saved-empty__icon  { font-size: 3.5rem; margin-bottom: var(--space-md); }
+.saved-empty__title { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-sm); }
+.saved-empty__desc  { color: var(--text-secondary); font-size: var(--font-size-sm); }
+
+/* ══════════════════════════════════════════════════════════════════
+   SKILL GAP PANEL
+   ══════════════════════════════════════════════════════════════════ */
+
+.skill-gap-panel {
+  padding: var(--space-lg) 0;
+  animation: fadeInUp 0.4s ease;
+}
+
+/* Coverage hero metric */
+.coverage-hero {
+  display:        flex;
+  align-items:    center;
+  gap:            var(--space-xl);
+  padding:        var(--space-xl);
+  background:     rgba(99,102,241,0.06);
+  border:         1px solid rgba(99,102,241,0.15);
+  border-radius:  var(--radius-xl);
+  margin-bottom:  var(--space-xl);
+  flex-wrap:      wrap;
+}
+
+.coverage-circle {
+  position:       relative;
+  width:          100px;
+  height:         100px;
+  flex-shrink:    0;
+}
+.coverage-circle svg { transform: rotate(-90deg); }
+.coverage-circle__track {
+  fill:         none;
+  stroke:       var(--glass-border);
+  stroke-width: 8;
+}
+.coverage-circle__fill {
+  fill:            none;
+  stroke-width:    8;
+  stroke-linecap:  round;
+  stroke:          var(--primary);
+  stroke-dasharray:283; /* 2π × 45 */
+  stroke-dashoffset: 283;
+  transition:      stroke-dashoffset 1s ease;
+}
+/* Color variants based on coverage */
+.coverage-circle--high   .coverage-circle__fill { stroke: var(--success); }
+.coverage-circle--medium .coverage-circle__fill { stroke: var(--warning); }
+.coverage-circle--low    .coverage-circle__fill { stroke: var(--danger);  }
+
+.coverage-circle__label {
+  position:    absolute;
+  inset:       0;
+  display:     flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size:   1.25rem;
+  font-weight: 800;
+}
+.coverage-circle__sub {
+  font-size:  var(--font-size-xs);
+  color:      var(--text-muted);
+  font-weight:400;
+}
+
+.coverage-info h3 { font-size: var(--font-size-xl); font-weight: 700; margin-bottom: var(--space-xs); }
+.coverage-info p  { color: var(--text-secondary); font-size: var(--font-size-sm); line-height: 1.6; }
+
+/* Two-column gap grid */
+.gap-grid {
+  display:               grid;
+  grid-template-columns: 1fr 1fr;
+  gap:                   var(--space-lg);
+  margin-bottom:         var(--space-xl);
+}
+@media (max-width: 767px) {
+  .gap-grid { grid-template-columns: 1fr; }
+}
+
+.gap-card {
+  padding:       var(--space-lg);
+  background:    var(--glass-bg);
+  border:        1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+}
+.gap-card__title {
+  font-size:     var(--font-size-md);
+  font-weight:   700;
+  margin-bottom: var(--space-md);
+  display:       flex;
+  align-items:   center;
+  gap:           var(--space-sm);
+}
+
+/* Skill frequency bar item */
+.skill-freq-item {
+  display:        flex;
+  align-items:    center;
+  gap:            var(--space-sm);
+  margin-bottom:  var(--space-sm);
+}
+.skill-freq-item__name {
+  font-size:   var(--font-size-xs);
+  font-weight: 600;
+  min-width:   100px;
+  white-space: nowrap;
+  overflow:    hidden;
+  text-overflow:ellipsis;
+}
+.skill-freq-bar-track {
+  flex:         1;
+  height:       6px;
+  background:   var(--bg-layer2);
+  border-radius:var(--radius-full);
+  overflow:     hidden;
+}
+.skill-freq-bar-fill {
+  height:       100%;
+  border-radius:var(--radius-full);
+  background:   linear-gradient(90deg, var(--primary), var(--accent));
+  width:        0%;
+  transition:   width 0.8s ease;
+}
+.skill-freq-bar-fill--match {
+  background: linear-gradient(90deg, var(--success), #34d399);
+}
+.skill-freq-item__pct {
+  font-size:  var(--font-size-xs);
+  color:      var(--text-muted);
+  min-width:  30px;
+  text-align: right;
+}
+
+/* Job coverage list */
+.job-coverage-item {
+  display:        flex;
+  align-items:    center;
+  gap:            var(--space-md);
+  padding:        var(--space-sm) 0;
+  border-bottom:  1px solid var(--glass-border);
+}
+.job-coverage-item:last-child { border-bottom: none; }
+.job-coverage-item__info { flex: 1; min-width: 0; }
+.job-coverage-item__title {
+  font-size:    var(--font-size-sm);
+  font-weight:  600;
+  white-space:  nowrap;
+  overflow:     hidden;
+  text-overflow:ellipsis;
+}
+.job-coverage-item__company {
+  font-size: var(--font-size-xs);
+  color:     var(--text-secondary);
+}
+.job-coverage-badge {
+  font-size:     var(--font-size-xs);
+  font-weight:   700;
+  padding:       0.2rem 0.5rem;
+  border-radius: var(--radius-full);
+  flex-shrink:   0;
+}
+.job-coverage-badge--high   { background: rgba(34,197,94,0.15); color: var(--success); }
+.job-coverage-badge--medium { background: rgba(245,158,11,0.15); color: var(--warning); }
+.job-coverage-badge--low    { background: rgba(239,68,68,0.1);   color: var(--danger);  }
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE FILTER BOTTOM DRAWER
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Backdrop overlay */
+.drawer-overlay {
+  position:   fixed;
+  inset:      0;
+  z-index:    200;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
+  opacity:    0;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+.drawer-overlay.open {
+  opacity:        1;
+  pointer-events: all;
+}
+
+/* The drawer itself — slides up from bottom */
+.filter-drawer {
+  position:      fixed;
+  bottom:        0;
+  left:          0;
+  right:         0;
+  z-index:       201;
+  background:    var(--bg-layer1);
+  border-top:    1px solid var(--glass-border);
+  border-radius: 20px 20px 0 0;
+  padding:       0 var(--space-lg) var(--space-lg);
+  max-height:    85vh;
+  overflow-y:    auto;
+  transform:     translateY(100%);
+  transition:    transform var(--transition-normal);
+}
+.filter-drawer.open { transform: translateY(0); }
+
+/* Drag handle */
+.drawer-handle {
+  width:         40px;
+  height:        4px;
+  background:    var(--bg-layer3);
+  border-radius: var(--radius-full);
+  margin:        0.75rem auto var(--space-md);
+}
+
+.drawer-header {
+  display:         flex;
+  align-items:     center;
+  justify-content: space-between;
+  margin-bottom:   var(--space-lg);
+}
+.drawer-header h3 { font-size: var(--font-size-lg); font-weight: 700; }
+.drawer-close-btn {
+  width:         36px;
+  height:        36px;
+  border-radius: var(--radius-full);
+  background:    var(--glass-bg);
+  border:        1px solid var(--glass-border);
+  color:         var(--text-secondary);
+  font-size:     1rem;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  cursor:        pointer;
+  transition:    all var(--transition-fast);
+}
+.drawer-close-btn:hover { background: var(--glass-hover); color: var(--text-primary); }
+
+.drawer-section { margin-bottom: var(--space-xl); }
+.drawer-section-title {
+  font-size:     var(--font-size-xs);
+  font-weight:   700;
+  color:         var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:0.08em;
+  margin-bottom: var(--space-sm);
+}
+
+.drawer-footer {
+  display:   flex;
+  gap:       var(--space-sm);
+  padding-top: var(--space-md);
+  border-top:  1px solid var(--glass-border);
+}
+.drawer-footer .btn { flex: 1; justify-content: center; }
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE STICKY BOTTOM ACTION BAR
+   ══════════════════════════════════════════════════════════════════ */
+
+.mobile-bottom-bar {
+  position:      fixed;
+  bottom:        0;
+  left:          0;
+  right:         0;
+  z-index:       100;
+  display:       flex;
+  gap:           var(--space-sm);
+  padding:       var(--space-sm) var(--space-md);
+  padding-bottom:calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+  background:    rgba(15,23,42,0.95);
+  backdrop-filter: blur(16px);
+  border-top:    1px solid var(--glass-border);
+}
+.mobile-bottom-bar .btn { flex: 1; justify-content: center; font-size: var(--font-size-xs); }
+
+/* Show bottom bar only on mobile/tablet */
+@media (min-width: 1024px) {
+  .mobile-bottom-bar { display: none; }
+}
+
+/* Add padding to main content so it's not hidden behind the bar */
+@media (max-width: 1023px) {
+  .results-main { padding-bottom: 80px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE FILTER FAB (Floating Action Button)
+   ══════════════════════════════════════════════════════════════════ */
+
+.filter-fab {
+  position:      fixed;
+  bottom:        80px; /* above bottom bar */
+  right:         1rem;
+  z-index:       99;
+  width:         52px;
+  height:        52px;
+  border-radius: var(--radius-full);
+  background:    linear-gradient(135deg, var(--primary), var(--secondary));
+  color:         #fff;
+  font-size:     1.3rem;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  box-shadow:    0 4px 20px rgba(99,102,241,0.5);
+  cursor:        pointer;
+  border:        none;
+  transition:    all var(--transition-normal);
+}
+.filter-fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(99,102,241,0.7); }
+/* Badge for active filter count */
+.filter-fab__badge {
+  position:      absolute;
+  top:           -4px;
+  right:         -4px;
+  width:         18px;
+  height:        18px;
+  background:    var(--warning);
+  border-radius: var(--radius-full);
+  font-size:     10px;
+  font-weight:   700;
+  display:       flex;
+  align-items:   center;
+  justify-content: center;
+  border:        2px solid var(--bg-base);
+}
+/* Hide FAB on desktop (sidebar handles filters) */
+@media (min-width: 1024px) { .filter-fab { display: none; } }
+
+/* ══════════════════════════════════════════════════════════════════
+   MOBILE-FIRST LAYOUT OVERRIDES
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Landing Page ──────────────────────────────────────────────── */
+@media (max-width: 639px) {
+  /* Hero title scaling */
+  .hero__title    { font-size: 2.2rem; }
+  .hero__subtitle { font-size: 0.95rem; }
+
+  /* Stats: 2-column grid on small mobile */
+  .hero__stats {
+    display:               grid;
+    grid-template-columns: 1fr 1fr;
+    gap:                   var(--space-md);
+    width:                 100%;
+    max-width:             320px;
+  }
+  /* Center the third stat */
+  .hero__stats .stat-item:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  /* Form card: reduce padding */
+  .form-card { padding: var(--space-md); }
+
+  /* Steps: single column */
+  .steps-grid { grid-template-columns: 1fr; }
+
+  /* Container padding tighter */
+  .container { padding: 0 var(--space-md); }
+}
+
+/* ── Results Page ──────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  /* Job cards: 2 columns on tablet */
+  .jobs-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+
+  /* Platform links: horizontal scroll */
+  .platform-links-grid {
+    flex-wrap:   nowrap;
+    overflow-x:  auto;
+    padding-bottom: var(--space-xs);
+    scrollbar-width: none;
+  }
+  .platform-links-grid::-webkit-scrollbar { display: none; }
+  .platform-link-card { flex-shrink: 0; }
+}
+
+@media (max-width: 639px) {
+  /* Single column job cards on phone */
+  .jobs-grid { grid-template-columns: 1fr; }
+
+  /* Tighter results main padding */
+  .results-main { padding: var(--space-sm); }
+
+  /* Results header: stack vertically */
+  .results-header { flex-direction: column; align-items: flex-start; gap: var(--space-sm); }
+
+  /* Sort select: full width */
+  .sort-select { width: 100%; }
+
+  /* Results count: smaller font */
+  .results-count { font-size: var(--font-size-lg); }
+
+  /* Reduce platform-links section padding */
+  .platform-links-section { padding: var(--space-sm); border-radius: var(--radius-md); }
+  .platform-links-title   { font-size: var(--font-size-xs); }
+
+  /* Job card: slightly tighter */
+  .job-card { padding: var(--space-md); }
+  .job-card__title { font-size: var(--font-size-sm); }
+}
+
+/* ── Touch targets — ensure 44px minimum on mobile ──────────────── */
+@media (max-width: 1023px) {
+  .btn, .tab-btn, .filter-chip, .apply-btn, .page-btn {
+    min-height: 44px;
+  }
+  .bookmark-btn { width: 40px; height: 40px; }
+}
+
+/* ── Pagination: hide text labels on tiny screens ─────────────── */
+@media (max-width: 400px) {
+  .page-btn--prev span, .page-btn--next span { display: none; }
+  .page-btn--prev::after { content: '←'; }
+  .page-btn--next::after { content: '→'; }
+}

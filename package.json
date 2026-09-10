@@ -1,0 +1,20 @@
+{
+  "name": "findmeajob",
+  "version": "1.0.0",
+  "description": "FindMeAJob — Your Dream Job, Found in Seconds",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js --open",
+    "dev": "node server.js --open",
+    "serve": "node server.js",
+    "test": "node -e \"console.log('Test suite is available at http://localhost:3000/tests/runner.html')\""
+  },
+  "keywords": [
+    "job-search",
+    "jobs",
+    "aggregator",
+    "career"
+  ],
+  "author": "FindMeAJob",
+  "license": "MIT"
+}

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO Meta Tags -->
+  <title>FindMeAJob — Your Dream Job, Found in Seconds</title>
+  <meta name="description" content="FindMeAJob helps freshers and professionals find relevant jobs instantly. Upload your resume, fill your preferences, and get personalized job matches from LinkedIn, Naukri, Indeed, and more — no login required." />
+  <meta name="keywords"    content="job search, find jobs, freshers jobs, naukri, linkedin jobs, job portal india, remote jobs" />
+  <meta name="author"      content="FindMeAJob" />
+  <meta property="og:title"       content="FindMeAJob — Your Dream Job, Found in Seconds" />
+  <meta property="og:description" content="Upload your resume, fill your preferences, get job matches instantly. No login required." />
+  <meta property="og:type"        content="website" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/landing.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- PDF.js for resume parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <!-- Mammoth.js for DOCX parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+</head>
+<body>
+
+  <!-- Animated Background -->
+  <div class="bg-mesh" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb--1" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb--2" aria-hidden="true"></div>
+  <div class="bg-orb bg-orb--3" aria-hidden="true"></div>
+
+  <!-- ── Navigation ──────────────────────────────────────────────────── -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="container nav__inner">
+      <!-- Logo -->
+      <a href="index.html" class="nav__logo" aria-label="FindMeAJob Home">
+        <img src="image.png" alt="FindMeAJob Logo" class="nav__logo-img" />
+        <span>FindMe<span class="text-gradient">AJob</span></span>
+      </a>
+
+      <!-- Desktop nav links -->
+      <div class="nav__links">
+        <a href="#how-it-works" class="nav__link">How It Works</a>
+        <a href="#platforms"    class="nav__link">Platforms</a>
+        <button id="btn-clear-data" class="btn btn--ghost btn--sm" title="Clear all saved data from your browser">
+          <i class="fa-solid fa-trash-can"></i> Clear My Data
+        </button>
+      </div>
+      <!-- Mobile hamburger button -->
+      <button id="nav-hamburger" class="nav__hamburger" aria-label="Open menu" aria-expanded="false">
+        <span class="nav__hamburger-line"></span>
+        <span class="nav__hamburger-line"></span>
+        <span class="nav__hamburger-line"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile nav overlay -->
+  <div id="mobile-nav-overlay" class="mobile-nav-overlay" role="dialog" aria-label="Mobile navigation">
+    <a href="#how-it-works" class="nav__link">How It Works</a>
+    <a href="#platforms"    class="nav__link">Platforms</a>
+    <button id="btn-clear-data-mobile" class="btn btn--ghost" style="font-size:1rem;">
+      <i class="fa-solid fa-trash-can"></i> Clear My Data
+    </button>
+  </div>
+
+  <!-- ── Main ────────────────────────────────────────────────────────── -->
+  <main>
+
+    <!-- ── Hero + Form Section ─────────────────────────────────────── -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div style="width:100%; max-width:800px; display:flex; flex-direction:column; align-items:center;">
+
+        <!-- ── Smart Search Form ──────────────────────────────────── -->
+        <div class="glass-card form-card" role="region" aria-labelledby="form-title">
+
+          <header class="form-card__header">
+            <h3><i class="fa-solid fa-clipboard-list"></i> Build Your Job Profile</h3>
+            <p>We'll auto-fill this when you upload your resume!</p>
+          </header>
+
+          <!-- Resume Upload Zone -->
+          <div id="resume-zone"
+               class="resume-zone"
+               role="button"
+               tabindex="0"
+               aria-label="Upload your resume (PDF or DOCX)"
+               aria-describedby="resume-hint">
+            <span class="resume-zone__icon" aria-hidden="true"><i class="fa-solid fa-file-pdf"></i></span>
+            <p class="resume-zone__title">Drop your resume here</p>
+            <p class="resume-zone__subtitle" id="resume-hint">Supports PDF & DOCX · Max 5 MB · Auto-fills your details</p>
+            <input type="file"
+                   id="resume-input"
+                   class="resume-zone__input"
+                   accept=".pdf,.doc,.docx"
+                   aria-label="Choose resume file" />
+            <!-- Shown after upload -->
+            <span id="resume-filename" class="resume-zone__filename hidden" aria-live="polite"></span>
+          </div>
+
+          <!-- Form Fields -->
+          <form id="job-search-form" novalidate aria-label="Job search preferences form">
+            <div class="form-grid">
+
+              <!-- Job Title -->
+              <div class="form-group form-grid--full">
+                <label class="form-label" for="input-job-title">
+                  Job Title / Role <span class="required" aria-label="required">*</span>
+                </label>
+                <input type="text"
+                       id="input-job-title"
+                       class="form-input"
+                       placeholder="e.g. Frontend Developer, Data Analyst..."
+                       autocomplete="off"
+                       required
+                       aria-required="true" />
+              </div>
+
+              <!-- Experience -->
+              <div class="form-group">
+                <label class="form-label" for="select-experience">Experience Level</label>
+                <select id="select-experience" class="form-select">
+                  <option value="">Select experience</option>
+                </select>
+              </div>
+
+              <!-- Work Mode -->
+              <div class="form-group">
+                <label class="form-label" for="select-work-mode">Work Mode</label>
+                <select id="select-work-mode" class="form-select">
+                  <option value="">Any mode</option>
+                </select>
+              </div>
+
+              <!-- Skills (Tags Input) -->
+              <div class="form-group form-grid--full" style="position:relative;">
+                <label class="form-label" for="skills-tag-input">
+                  Skills <span style="color:var(--text-muted);font-weight:400;">(type & press Enter)</span>
+                </label>
+                <div id="tags-wrapper" class="tags-input-wrapper" role="group" aria-label="Skills tags">
+                  <input type="text"
+                         id="skills-tag-input"
+                         class="tags-input-field"
+                         placeholder="Add a skill..."
+                         autocomplete="off"
+                         aria-label="Add skill tag" />
+                </div>
+                <!-- Autocomplete suggestions -->
+                <div id="skills-autocomplete" class="autocomplete-list" role="listbox" aria-label="Skill suggestions"></div>
+              </div>
+
+              <!-- Location -->
+              <div class="form-group" style="position:relative;">
+                <label class="form-label" for="input-location">Preferred Location</label>
+                <input type="text"
+                       id="input-location"
+                       class="form-input"
+                       placeholder="e.g. Bangalore, Remote..."
+                       autocomplete="off" />
+                <div id="location-autocomplete" class="autocomplete-list" role="listbox" aria-label="Location suggestions"></div>
+              </div>
+
+              <!-- Job Type -->
+              <div class="form-group">
+                <label class="form-label" for="select-job-type">Job Type</label>
+                <select id="select-job-type" class="form-select">
+                  <option value="">Any type</option>
+                </select>
+              </div>
+
+              <div class="form-group" style="grid-column: 1 / -1; margin-top: var(--space-md);">
+                <button type="submit" class="btn btn--primary w-full" id="btn-submit" style="font-size: 1.1rem; padding: 1rem;">
+                  <i class="fa-solid fa-magnifying-glass"></i> Find My Jobs
+                </button>
+                <p class="privacy-note" style="text-align: center; margin-top: 1rem; color: var(--text-muted); font-size: 0.85rem;">
+                  <i class="fa-solid fa-lock"></i> Your data never leaves your device. No signup required.
+                </p>
+              </div>
+            </div><!-- /form-grid -->
+          </form><!-- /form -->
+        </div><!-- /form-card -->
+
+        <!-- Platform Badges -->
+        <div class="platforms-section" id="platforms" aria-label="Supported job platforms">
+          <p class="platforms-label">Searches across</p>
+          <div class="platforms-grid" role="list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+      </div>
+    </section><!-- /hero -->
+
+    <!-- ── How It Works ───────────────────────────────────────────── -->
+    <section class="how-it-works" id="how-it-works" aria-labelledby="how-title">
+      <div class="container">
+        <p class="section-label">Simple Process</p>
+        <h2 class="section-title" id="how-title">How <span class="text-gradient">FindMeAJob</span> Works</h2>
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-card__icon" aria-hidden="true">1 <i class="fa-solid fa-file-arrow-up"></i></div>
+            <h4 class="step-card__title">Upload Resume</h4>
+            <p class="step-card__desc">We extract your skills, experience, and location instantly.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-card__icon" aria-hidden="true">2 <i class="fa-solid fa-bolt"></i></div>
+            <h4 class="step-card__title">Get Matched</h4>
+            <p class="step-card__desc">Our engine finds the best matching jobs across 6 platforms.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-card__icon" aria-hidden="true">3 <i class="fa-solid fa-rocket"></i></div>
+            <h4 class="step-card__title">Apply &amp; Download</h4>
+            <p class="step-card__desc">Apply with one click or export your results as PDF/CSV.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────────────────── -->
+  <footer class="footer" role="contentinfo">
+    <div class="container">
+      <div class="footer__links">
+        <span class="footer__link">🔒 Your data never leaves your device</span>
+        <span class="footer__link">·</span>
+        <span class="footer__link">No login · No sign up · Always free</span>
+      </div>
+      <p>© 2026 FindMeAJob · Built with ❤️ for job seekers</p>
+    </div>
+  </footer>
+
+  <!-- ── Scripts (load order: config/utils → modules → app) ──────────── -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/resumeParser.js"></script>
+  <script src="js/urlBuilder.js"></script>
+  <script src="js/bookmarkManager.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

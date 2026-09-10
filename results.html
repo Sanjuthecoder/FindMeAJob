@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Results — FindMeAJob</title>
+  <meta name="description" content="Your personalized job matches from LinkedIn, Naukri, Indeed and more." />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>" />
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/results.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <div class="bg-mesh" aria-hidden="true" style="opacity:0.35;"></div>
+
+  <!-- ── Navigation ──────────────────────────────────────────────── -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="container nav__inner">
+
+      <a href="index.html" class="nav__logo" aria-label="Back to FindMeAJob Home">
+        <img src="image.png" alt="FindMeAJob Logo" class="nav__logo-img" />
+        <span>FindMe<span class="text-gradient">AJob</span></span>
+      </a>
+
+      <!-- Search context badge -->
+      <div id="nav-search-context" class="hidden" style="display:flex;align-items:center;gap:0.5rem;">
+        <span style="font-size:0.75rem;color:var(--text-muted);">Searching</span>
+        <span id="nav-job-title" style="font-size:0.8rem;font-weight:600;color:var(--primary-light);
+              padding:0.2rem 0.7rem;background:rgba(99,102,241,0.12);border-radius:9999px;"></span>
+      </div>
+
+      <!-- Desktop nav actions -->
+      <div class="nav__links" style="gap:0.5rem;">
+        <button id="btn-export-csv" class="btn btn--ghost btn--sm" aria-label="Export CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+        <button id="btn-export-pdf" class="btn btn--ghost btn--sm" aria-label="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+        <a href="index.html" class="btn btn--primary btn--sm"><i class="fa-solid fa-magnifying-glass"></i> New Search</a>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button id="nav-hamburger" class="nav__hamburger" aria-label="Open menu" aria-expanded="false">
+        <span class="nav__hamburger-line"></span>
+        <span class="nav__hamburger-line"></span>
+        <span class="nav__hamburger-line"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile nav overlay -->
+  <div id="mobile-nav-overlay" class="mobile-nav-overlay" role="dialog" aria-label="Mobile navigation">
+    <a href="index.html" class="nav__link"><i class="fa-solid fa-magnifying-glass"></i> New Search</a>
+    <a href="#" id="mobile-export-csv-nav" class="nav__link"><i class="fa-solid fa-file-csv"></i> Export CSV</a>
+    <a href="#" id="mobile-export-pdf-nav" class="nav__link"><i class="fa-solid fa-file-pdf"></i> Export PDF</a>
+  </div>
+
+  <!-- ── Results Layout ──────────────────────────────────────────── -->
+  <div class="results-page">
+
+    <!-- ── Sidebar ───────────────────────────────────────────────── -->
+    <aside class="sidebar" role="complementary" aria-label="Filters">
+
+      <div id="sidebar-profile" class="profile-summary" role="region" aria-label="Search profile">
+        <p class="profile-summary__name" id="sidebar-profile-title">Your Profile</p>
+        <p class="profile-summary__detail" id="sidebar-detail-exp"></p>
+        <p class="profile-summary__detail" id="sidebar-detail-loc"></p>
+        <p class="profile-summary__detail" id="sidebar-detail-mode"></p>
+      </div>
+
+      <div class="sidebar-actions" style="margin-top: 0; padding-top: 0; border-top: none; margin-bottom: var(--space-md);">
+        <button id="sidebar-reset" class="btn btn--ghost btn--sm w-full"><i class="fa-solid fa-rotate-right"></i> Clear Filters</button>
+      </div>
+
+      <div class="sidebar__section">
+        <p class="sidebar__title">Platform</p>
+        <div id="filter-platforms" class="filter-group" role="group" aria-label="Filter by platform"></div>
+      </div>
+
+      <div class="sidebar__section">
+        <p class="sidebar__title">Job Type</p>
+        <div id="filter-job-types" class="filter-group" role="group" aria-label="Filter by job type"></div>
+      </div>
+
+      <div class="sidebar__section">
+        <p class="sidebar__title">Min Match Score</p>
+        <div id="filter-match" class="filter-group" role="group" aria-label="Filter by match score">
+          <button class="filter-chip active" data-min-score="0"  role="radio" aria-checked="true">All</button>
+          <button class="filter-chip"        data-min-score="40" role="radio" aria-checked="false">40%+</button>
+          <button class="filter-chip"        data-min-score="60" role="radio" aria-checked="false">60%+</button>
+          <button class="filter-chip"        data-min-score="80" role="radio" aria-checked="false">80%+</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main Content ───────────────────────────────────────────── -->
+    <main class="results-main" role="main">
+
+      <!-- ── Tabs ──────────────────────────────────────────────── -->
+      <div class="results-tabs" role="tablist" aria-label="Result views">
+        <button class="tab-btn active" data-tab="all-jobs"   role="tab" aria-selected="true"  id="tab-btn-all">
+          All Jobs <span class="tab-count" id="tab-all-count">0</span>
+        </button>
+        <button class="tab-btn"        data-tab="saved-jobs" role="tab" aria-selected="false" id="tab-btn-saved">
+          <i class="fa-solid fa-star"></i> Saved <span class="tab-count" id="tab-saved-count">0</span>
+        </button>
+        <button class="tab-btn"        data-tab="skill-gap"  role="tab" aria-selected="false" id="tab-btn-gap">
+          <i class="fa-solid fa-chart-pie"></i> Skill Gap
+        </button>
+      </div>
+
+      <!-- ══ TAB PANEL: All Jobs ═══════════════════════════════ -->
+      <div id="tab-all-jobs" class="tab-panel active" role="tabpanel" aria-labelledby="tab-btn-all">
+
+        <!-- Results header -->
+        <header class="results-header">
+          <div>
+            <h1 class="results-count" id="results-count-text">Finding jobs<span>…</span></h1>
+            <p class="results-subtitle" id="results-subtitle">Fetching from live job platforms</p>
+          </div>
+          <div class="results-controls">
+            <label for="sort-select" style="position:absolute;width:1px;height:1px;overflow:hidden;">Sort by</label>
+            <select id="sort-select" class="sort-select" aria-label="Sort jobs by">
+              <option value="matchScore">Best Match</option>
+              <option value="postedAt">Most Recent</option>
+              <option value="company">Company A–Z</option>
+            </select>
+          </div>
+        </header>
+
+        <!-- Platform deep-links strip -->
+        <section class="platform-links-section" role="region" aria-labelledby="platform-links-title">
+          <p class="platform-links-title" id="platform-links-title">
+            <i class="fa-solid fa-link"></i> Search directly on these platforms with your profile pre-filled:
+          </p>
+          <div id="platform-links-grid" class="platform-links-grid" role="list"></div>
+        </section>
+
+        <!-- Loading state -->
+        <div id="loading-state" class="loading-state" role="status" aria-live="polite">
+          <div class="loading-spinner" aria-hidden="true"></div>
+          <p class="loading-text">Searching live job platforms…</p>
+          <p class="loading-sub">Fetching from Remotive, RemoteOK &amp; more</p>
+          <div class="jobs-grid" aria-hidden="true" style="margin-top:2rem;">
+            <div class="skeleton-card">
+              <div style="display:flex;gap:1rem;">
+                <div class="skeleton skeleton-logo"></div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
+                  <div class="skeleton skeleton-line skeleton-line--md"></div>
+                  <div class="skeleton skeleton-line skeleton-line--sm"></div>
+                </div>
+              </div>
+              <div class="skeleton skeleton-line skeleton-line--lg"></div>
+              <div class="skeleton skeleton-line skeleton-line--sm"></div>
+            </div>
+            <div class="skeleton-card">
+              <div style="display:flex;gap:1rem;">
+                <div class="skeleton skeleton-logo"></div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
+                  <div class="skeleton skeleton-line skeleton-line--lg"></div>
+                  <div class="skeleton skeleton-line skeleton-line--md"></div>
+                </div>
+              </div>
+              <div class="skeleton skeleton-line skeleton-line--lg"></div>
+              <div class="skeleton skeleton-line skeleton-line--sm"></div>
+            </div>
+            <div class="skeleton-card">
+              <div style="display:flex;gap:1rem;">
+                <div class="skeleton skeleton-logo"></div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">
+                  <div class="skeleton skeleton-line skeleton-line--md"></div>
+                  <div class="skeleton skeleton-line skeleton-line--sm"></div>
+                </div>
+              </div>
+              <div class="skeleton skeleton-line skeleton-line--lg"></div>
+              <div class="skeleton skeleton-line skeleton-line--sm"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div id="empty-state" class="empty-state hidden" role="status" aria-live="polite">
+          <div class="empty-state__icon" aria-hidden="true"><i class="fa-solid fa-magnifying-glass"></i></div>
+          <h2 class="empty-state__title">No Jobs Found</h2>
+          <p class="empty-state__desc">
+            Try adjusting your filters, or use the platform links above to search directly.
+          </p>
+          <a href="index.html" class="btn btn--primary"><i class="fa-solid fa-arrow-left"></i> Edit Profile &amp; Retry</a>
+        </div>
+
+        <!-- Job cards grid -->
+        <div id="jobs-grid" class="jobs-grid hidden" role="list" aria-label="Job listings" aria-live="polite"></div>
+
+        <!-- Pagination -->
+        <nav id="pagination" class="pagination hidden" role="navigation" aria-label="Pagination"></nav>
+
+      </div><!-- /tab-all-jobs -->
+
+      <!-- ══ TAB PANEL: Saved Jobs ══════════════════════════════ -->
+      <div id="tab-saved-jobs" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-saved">
+        <div id="saved-jobs-grid" class="jobs-grid" role="list" aria-label="Saved jobs" aria-live="polite">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- ══ TAB PANEL: Skill Gap ═══════════════════════════════ -->
+      <div id="tab-skill-gap" class="tab-panel" role="tabpanel" aria-labelledby="tab-btn-gap">
+        <div id="skill-gap-content">
+          <!-- Populated by JS when tab is opened -->
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /results-page -->
+
+  <!-- ── Mobile Filter Bottom Drawer ────────────────────────────── -->
+  <div id="drawer-overlay" class="drawer-overlay" aria-hidden="true"></div>
+  <div id="filter-drawer"  class="filter-drawer"
+       role="dialog" aria-modal="true" aria-label="Job filters">
+    <div class="drawer-handle" aria-hidden="true"></div>
+    <div class="drawer-header">
+      <h3>Filters</h3>
+      <button id="drawer-close-btn" class="drawer-close-btn" aria-label="Close filters">✕</button>
+    </div>
+    <div class="drawer-section">
+      <p class="drawer-section-title">Platform</p>
+      <div id="drawer-filter-platforms" class="filter-group" role="group"></div>
+    </div>
+    <div class="drawer-section">
+      <p class="drawer-section-title">Job Type</p>
+      <div id="drawer-filter-job-types" class="filter-group" role="group"></div>
+    </div>
+    <div class="drawer-section">
+      <p class="drawer-section-title">Min Match Score</p>
+      <div id="drawer-filter-match" class="filter-group" role="group">
+        <button class="filter-chip active" data-min-score="0"  role="radio" aria-checked="true">All</button>
+        <button class="filter-chip"        data-min-score="40" role="radio" aria-checked="false">40%+</button>
+        <button class="filter-chip"        data-min-score="60" role="radio" aria-checked="false">60%+</button>
+        <button class="filter-chip"        data-min-score="80" role="radio" aria-checked="false">80%+</button>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button id="drawer-reset" class="btn btn--ghost"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+      <button id="drawer-apply" class="btn btn--primary">Show Results</button>
+    </div>
+  </div>
+
+  <!-- ── Filter FAB (mobile only) ────────────────────────────────── -->
+  <button id="filter-fab" class="filter-fab" aria-label="Open filters">
+    <i class="fa-solid fa-filter"></i>
+    <span class="filter-fab__badge" style="display:none;" aria-label="Active filters count">0</span>
+  </button>
+
+  <!-- ── Mobile Sticky Bottom Action Bar ────────────────────────── -->
+  <div class="mobile-bottom-bar" role="toolbar" aria-label="Quick actions">
+    <button id="mobile-filter-btn"  class="btn btn--ghost"><i class="fa-solid fa-filter"></i> Filters</button>
+    <button id="mobile-export-csv"  class="btn btn--ghost"><i class="fa-solid fa-file-csv"></i> CSV</button>
+    <button id="mobile-export-pdf"  class="btn btn--ghost"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+  </div>
+
+  <!-- ── Scripts ──────────────────────────────────────────────────── -->
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/urlBuilder.js"></script>
+  <script src="js/jobSearch.js"></script>
+  <script src="js/bookmarkManager.js"></script>
+  <script src="js/skillGapAnalyzer.js"></script>
+  <script src="js/resultsRenderer.js"></script>
+  <script src="js/exportManager.js"></script>
+  <script src="js/results-app.js"></script>
+</body>
+</html>

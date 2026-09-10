@@ -1,0 +1,86 @@
+# 🚀 FindMeAJob.com — Phase 2 Build Summary
+
+> **Status:** ✅ Complete · Mobile-First Responsive UI · 90 Unit Tests Passing
+
+---
+
+## ✨ What's New in Phase 2
+
+### 1. 📱 Mobile-First Responsive Design
+- **New `responsive.css` added**:
+  - Implemented a sleek **Hamburger Navigation Menu** with a full-screen glassmorphic overlay for mobile devices.
+  - Added a **Sticky Bottom Action Bar** on mobile for quick access to Filters and Exports.
+  - Built a **Bottom Sheet Filter Drawer** that slides up smoothly on mobile, replacing the desktop sidebar, complete with a Floating Action Button (FAB) and active filter badge.
+  - Refactored grid layouts (Hero stats, Job cards, Platform links) to stack beautifully on small screens.
+
+### 2. ⭐ Job Bookmarking System
+- **`bookmarkManager.js`**: Introduced a secondary, isolated `IndexedDB` store specifically for saved jobs.
+- **Results Tabs**: The Results page now features tabbed navigation (`All Jobs`, `⭐ Saved`, `📊 Skill Gap`).
+- **Interactive UI**: Added toggleable bookmark buttons to every job card with a satisfying pulse animation. The "Saved" tab instantly reflects these changes.
+
+### 3. 📊 Skill Gap Analyzer
+- **`skillGapAnalyzer.js`**: A pure, testable analytics engine that compares the user's parsed skills against the requirements found in job tags and descriptions.
+- **Visual Dashboard**:
+  - **Dynamic SVG Donut Chart** showing overall match percentage.
+  - "Top Missing Skills" and "Your Strengths" progress bars.
+  - Per-job coverage breakdown showing exactly which skills you lack for specific roles.
+
+### 4. 🔌 Expanded API Integrations
+- **Adzuna API** (India-specific jobs) and **JSearch RapidAPI** (LinkedIn/Indeed/Glassdoor aggregator) fetchers have been integrated into `jobSearch.js`.
+- They are currently **feature-flagged behind config variables** in `config.js`. Once you add your free API keys there, they will automatically run concurrently with Remotive and RemoteOK.
+
+### 5. 🧪 Expanded Test Suite
+- Upgraded the test runner to handle asynchronous tests (IndexedDB).
+- Added 20 new tests for `skillGapAnalyzer`, 8 async tests for `bookmarkManager`, and normalizer tests. 
+- **Total Test Count**: 90 tests across 12 suites, all passing.
+
+---
+
+## 🏗️ Updated Architecture
+
+```mermaid
+graph TD
+    subgraph UI Layer
+        LANDING[index.html]
+        RESULTS[results.html]
+        CSS[main.css + responsive.css]
+    end
+
+    subgraph Controllers
+        APP[app.js]
+        RESULTS_APP[results-app.js]
+        RENDERER[resultsRenderer.js]
+    end
+
+    subgraph Business Logic & Data
+        CONFIG[config.js]
+        UTILS[utils.js]
+        STORAGE[storage.js]
+        BOOKMARKS[bookmarkManager.js]
+        RESUME[resumeParser.js]
+        SEARCH[jobSearch.js]
+        GAP[skillGapAnalyzer.js]
+        URLS[urlBuilder.js]
+        EXPORT[exportManager.js]
+    end
+
+    LANDING --> APP
+    RESULTS --> RESULTS_APP
+    APP --> RESUME
+    APP --> STORAGE
+    RESULTS_APP --> SEARCH
+    RESULTS_APP --> BOOKMARKS
+    RESULTS_APP --> GAP
+    RESULTS_APP --> RENDERER
+    RESULTS_APP --> EXPORT
+```
+
+---
+
+## 🚀 How to Run
+
+1. Ensure your local server is running: `npx serve . --listen 5500`
+2. Open **http://localhost:5500** in your browser.
+3. Open **http://localhost:5500/tests/runner.html** to view the test results.
+
+*(Tip: Open the browser's developer tools and toggle device emulation to see the mobile layout in action!)*

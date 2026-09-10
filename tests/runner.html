@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test Runner — FindMeAJob Phase 2</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Consolas', monospace; background: #030712; color: #f8fafc; padding: 1.5rem; }
+    h1 { font-size: 1.4rem; margin-bottom: 0.3rem; color: #818cf8; }
+    .subtitle { color: #475569; font-size: 0.8rem; margin-bottom: 1.5rem; }
+    .summary-box { padding: 1.2rem; border-radius: 10px; margin-bottom: 1.5rem; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.25); }
+    .summary-box h2 { font-size: 1.6rem; }
+    .pass { color: #22c55e; } .fail { color: #ef4444; }
+    .log-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
+    .log-table th { background: #0f172a; padding: 0.5rem; text-align: left; color: #64748b; border-bottom: 1px solid #1e293b; }
+    .log-table td { padding: 0.4rem 0.5rem; border-bottom: 1px solid #0f172a; }
+    .log-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .badge-pass { color: #22c55e; font-weight: bold; }
+    .badge-fail { color: #ef4444; font-weight: bold; }
+    .err-msg { color: #f97316; font-size: 0.7rem; }
+    .note { color: #475569; font-size: 0.7rem; margin-top: 1rem; }
+    #filter-bar { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+    .filter-btn { padding: 0.3rem 0.8rem; border-radius: 6px; border: 1px solid #1e293b; background: transparent; color: #94a3b8; cursor: pointer; font-size: 0.75rem; }
+    .filter-btn.active { background: rgba(99,102,241,0.2); border-color: #6366f1; color: #818cf8; }
+  </style>
+</head>
+<body>
+  <h1>🧪 FindMeAJob — Test Runner <span style="font-size:0.85rem;color:#475569;">Phase 1 + Phase 2</span></h1>
+  <p class="subtitle">Open DevTools Console (F12) for full output · Results appear below · Async tests may complete after initial render</p>
+
+  <div class="summary-box">
+    <h2 id="summary-text">Running tests…</h2>
+    <p id="summary-detail" style="color:#94a3b8;margin-top:0.4rem;font-size:0.85rem;"></p>
+  </div>
+
+  <div id="filter-bar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="PASS">✅ Passed</button>
+    <button class="filter-btn" data-filter="FAIL">❌ Failed</button>
+  </div>
+
+  <table class="log-table">
+    <thead><tr><th style="width:50px">Status</th><th>Test Name</th><th>Error</th></tr></thead>
+    <tbody id="log-body"></tbody>
+  </table>
+
+  <p class="note">ℹ️ BookmarkManager tests are async — results may update after 1–2 seconds. Refresh to re-run.</p>
+
+  <!-- Load modules in dependency order -->
+  <script src="../js/config.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/storage.js"></script>
+  <script src="../js/resumeParser.js"></script>
+  <script src="../js/urlBuilder.js"></script>
+  <script src="../js/jobSearch.js"></script>
+  <script src="../js/bookmarkManager.js"></script>
+  <script src="../js/skillGapAnalyzer.js"></script>
+  <script src="tests.js"></script>
+
+  <script>
+    // ── Render results table ──────────────────────────────────────────────────
+    function renderLog(log, filter = 'all') {
+      const tbody = document.getElementById('log-body');
+      tbody.innerHTML = '';
+      const filtered = filter === 'all' ? log : log.filter(r => r.status === filter);
+      filtered.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="${r.status === 'PASS' ? 'badge-pass' : 'badge-fail'}">${r.status === 'PASS' ? '✅' : '❌'} ${r.status}</td>
+          <td>${r.name}</td>
+          <td class="err-msg">${r.error || ''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ── Update summary and table after tests finish ───────────────────────────
+    function updateUI() {
+      const results = window.TEST_RESULTS;
+      if (!results) return;
+      const total = results.passed + results.failed;
+      document.getElementById('summary-text').innerHTML = results.failed === 0
+        ? `<span class="pass">✅ ${results.passed}/${total} Tests Passed</span>`
+        : `<span class="fail">❌ ${results.failed} Failed</span> · <span class="pass">${results.passed} Passed</span>`;
+      document.getElementById('summary-detail').textContent = results.failed === 0
+        ? '🎉 All tests passed! Code is healthy.' : `${results.failed} test(s) failed — check console for details.`;
+      renderLog(results.log || []);
+    }
+
+    // ── Filter buttons ────────────────────────────────────────────────────────
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderLog(window.TEST_RESULTS?.log || [], btn.dataset.filter);
+      });
+    });
+
+    // Poll for async tests to complete (BookmarkManager is async)
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(updateUI, 300);   // sync tests
+      setTimeout(updateUI, 2000);  // async (IndexedDB) tests settled
+    });
+  </script>
+</body>
+</html>

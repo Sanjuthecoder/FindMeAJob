@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# OS & Environment
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+# Firebase build & debug logs
+.firebase/
+firebase-debug.log*
+
+# Screenshots & Temporary files
+image.png
+
+# Environment files
+.env*
