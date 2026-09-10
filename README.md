@@ -111,6 +111,16 @@ See the deployment guide below for complete step-by-step setup instructions.
 
 ---
 
+## 📬 Contact & Support
+
+Developed with ❤️ by **Sanjay Sharma**  
+- **Email**: [sanjaysharmajr07@gmail.com](mailto:sanjaysharmajr07@gmail.com)  
+- **GitHub**: [@Sanjuthecoder](https://github.com/Sanjuthecoder)  
+- **Repository**: [https://github.com/Sanjuthecoder/FindMeAJob](https://github.com/Sanjuthecoder/FindMeAJob)
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
