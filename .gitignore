@@ -16,7 +16,6 @@ firebase-debug.log*
 tests/
 Docs/
 server.js
-image.png
 
 # Environment files
 .env*
