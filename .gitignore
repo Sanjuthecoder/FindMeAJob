@@ -12,7 +12,10 @@ Thumbs.db
 .firebase/
 firebase-debug.log*
 
-# Screenshots & Temporary files
+# Development, Test Suites & Local Server (Excluded from Production)
+tests/
+Docs/
+server.js
 image.png
 
 # Environment files
