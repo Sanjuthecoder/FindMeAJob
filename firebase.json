@@ -9,7 +9,6 @@
       "Docs/**",
       "server.js",
       "package*.json",
-      "*.png",
       "*.md"
     ],
     "cleanUrls": true,
@@ -20,6 +19,15 @@
           {
             "key": "Cache-Control",
             "value": "public, max-age=3600, must-revalidate"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(png|jpg|jpeg|svg|webp|ico)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=86400"
           }
         ]
       },
